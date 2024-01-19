@@ -8,26 +8,32 @@ class Login:
     def __init__(self,name):
         self.name = name
         self.set = set()
-        self.create()
+        self.validation(self.name)
+    def repeat(self):
+        user = input('Masukkan Id Anda : ')
+        self.validation(user)
     def check(self):
         return self.name in self.set
-    def create(self):
-        if (not self.check):
+    def validation(self, name):
+        if (not self.check()):
             print('Id tidak ada silahkan daftar terlebih dahulu')
             print()
             pil = input('Masukkan Id baru anda : ')
+            print('Id berhasil dibuat\n')
             self.set.add(pil)
+            self.repeat()
+        if (self.check()):
+            print('Id Tersedia')
+            print()
             return True
-        return True
 
 # QUEUE
 # class InformasiKota:
 #     def __init__(self):
 class Map:
-    def __init__(self) -> None:
+    def __init__(self):
         self.node = set()
         self.edge = {}
-        self.hashTable = {}
     def addNode(self, value):
         self.node.add(value)
         self.edge[value] = []
@@ -36,31 +42,14 @@ class Map:
         self.edge[toNode].append((fromNode,value))
 
 class MencariLintasanTerdekat:
-    def __init__(self):
+    def __init__(self, lokasi):
         self.infinity = float("infinity")
         self.history = []
         self.jarak = {}
         self.kota = {}
         self.kota_pertama = ""
         self.kota_tujuan = ""
-        self.lokasi = Map().hashTable
-        # self.lokasi = {
-        #     "Medan": {"Pekanbaru": 400, "Padang": 600, "Palembang": 500},
-        #     "Palembang": {"Medan": 500, "Padang": 400, "Pekanbaru": 300},
-        #     "Padang": {
-        #         "Medan": 600,
-        #         "Palembang": 400,
-        #         "Pekanbaru": 200,
-        #         "Bandar Lampung": 700,
-        #     },
-        #     "Pekanbaru": {"Padang": 200, "Medan": 400, "Palembang": 300},
-        #     "Bandar Lampung": {"Padang": 700, "Jambi": 400},
-        #     "Jambi": {"Bengkulu": 200, "Bandar Lampung": 400},
-        #     "Bengkulu": {"Jambi": 200, "Bukit Tinggi": 300},
-        #     "Bukit Tinggi": {"Bengkulu": 300, "Tanjung Pinang": 500},
-        #     "Tanjung Pinang": {"Bukit Tinggi": 500, "Dumai": 400},
-        #     "Dumai": {"Tanjung Pinang": 400},
-        # }
+        self.lokasi = lokasi
         self.jalan = True
         while jalan:
             self.RunCode()
@@ -91,9 +80,11 @@ class MencariLintasanTerdekat:
             print("Lintasan Tersedia :")
 
             for index, data in enumerate(self.lokasi):
-                if data == self.kota_pertama:
-                    index -= 1
-
+                if (data==self.kota_pertama):
+                    if index==0:
+                        index+=1
+                    else:
+                        index-=1
                 elif data != self.kota_pertama:
                     print(f"{index+1}. {data} ")
             print()
@@ -187,25 +178,50 @@ class MencariLintasanTerdekat:
 
 # INISIALISASI
 Data = Map()
-
-Data.addNode('A')
-Data.addNode('B')
-Data.addNode('C')
-Data.addNode('D')
-
-Data.addEdge('A', 'B', 1)
-Data.addEdge('B', 'C', 2)
-Data.addEdge('A', 'C', 4)
-Data.addEdge('C', 'D', 1)
-
-Data.hashTable['A'] = {'info': 'Simpul A'}
-Data.hashTable['B'] = {'info': 'Simpul B'}
-Data.hashTable['C'] = {'info': 'Simpul C'}
-Data.hashTable['D'] = {'info': 'Simpul D'}
+# KOTA
+Data.addNode('Medan')
+Data.addNode('Palembang')
+Data.addNode('Padang')
+Data.addNode('Pekanbaru')
+Data.addNode('Jambi')
+Data.addNode('Pekanbaru')
+Data.addNode('Bandar Lampung')
+Data.addNode('Jambi')
+Data.addNode('Bengkulu')
+Data.addNode('Bukit Tinggi')
+Data.addNode('Tanjung Pinang')
+Data.addNode('Dumai')
+# HUBUNGAN ANTAR KOTA
+Data.addEdge('Medan', 'Pekanbaru', 400)
+Data.addEdge('Medan', 'Padang', 600)
+Data.addEdge('Medan', 'Palembang', 500)
+Data.addEdge('Palembang', 'Medan', 500)
+Data.addEdge('Palembang', 'Padang', 400)
+Data.addEdge('Palembang', 'Pekanbaru', 300)
+Data.addEdge('Padang', 'Medan', 600)
+Data.addEdge('Padang', 'Palembang', 400)
+Data.addEdge('Padang', 'Pekanbaru', 200)
+Data.addEdge('Padang', 'Bandar Lampung', 700)
+Data.addEdge('Pekanbaru', 'Padang', 200)
+Data.addEdge('Pekanbaru', 'Medan', 400)
+Data.addEdge('Pekanbaru', 'Palembang', 300)
+Data.addEdge('Bandar Lampung', 'Padang', 700)
+Data.addEdge('Bandar Lampung', 'Jambi', 400)
+Data.addEdge('Jambi', 'Bengkulu', 200)
+Data.addEdge('Jambi', 'Bandar Lampung', 400)
+Data.addEdge('Bengkulu', 'Jambi', 200)
+Data.addEdge('Bengkulu', 'Bukit Tinggi', 300)
+Data.addEdge('Bukit Tinggi', 'Bengkulu', 300)
+Data.addEdge('Bukit Tinggi', 'Tanjung Pinang', 500)
+Data.addEdge('Tanjung Pinang', 'Bukit Tinggi', 500)
+Data.addEdge('Tanjung Pinang', 'Dumai', 400)
+Data.addEdge('Dumai', 'Tanjung Pinang', 400)
 
 # MENJALANKAN CODE
 jalan = True
 user = input('Masukkan id anda : ')
-Login(user)
-if (Login(user)):
-    MencariLintasanTerdekat()
+valid = Login(user)
+if (valid):
+    MencariLintasanTerdekat(Data.node)
+else:
+    valid = Login(user)
