@@ -3,225 +3,236 @@ import datetime as dt
 
 os.system("cls")
 
+
+# DICTIONARY dan QUEUE
+class Peta:
+    def __init__(self):
+        self.kota = []
+        self.cabang = {}
+
+    def addKota(self, value):
+        self.kota.append(value)
+        self.cabang[value] = {}
+
+    def addCabang(self, lokasiAwal, tujuan, jarak):
+        self.cabang[lokasiAwal][tujuan] = jarak
+        self.cabang[tujuan][tujuan] = jarak
+
+    def FindRute(self, kotaAwal, kotaTujuan):
+        jarak = {vertex: float("inf") for vertex in self.cabang}
+        jarak[kotaAwal] = 0
+        dikunjungi = set()
+
+        while len(dikunjungi) < len(self.cabang):
+            ruteSekarang = None
+            for rute in self.cabang:
+                if rute not in dikunjungi and (
+                    ruteSekarang is None or jarak[rute] < jarak[ruteSekarang]
+                ):
+                    ruteSekarang = rute
+
+            dikunjungi.add(ruteSekarang)
+
+            for tetangga, distance in self.cabang[ruteSekarang].items():
+                if jarak[ruteSekarang] + distance < jarak[tetangga]:
+                    jarak[tetangga] = jarak[ruteSekarang] + distance
+
+        path = [kotaTujuan]
+        ruteSekarang = kotaTujuan
+        jarak_tempuh = 0
+
+        while ruteSekarang != kotaAwal:
+            for tetangga, distance in self.cabang[ruteSekarang].items():
+                if jarak[ruteSekarang] - distance == jarak[tetangga]:
+                    path.append(tetangga)
+                    jarak_tempuh += distance
+                    ruteSekarang = tetangga
+                    break
+        path.reverse()
+        return path, jarak_tempuh
+
+
 # SET
 class Login:
-    def __init__(self,name):
-        self.name = name
-        self.set = set()
-        self.validation(self.name)
+    def __init__(self):
+        self.password = set()
+        self.count = 0
+
     def repeat(self):
-        user = input('Masukkan Id Anda : ')
-        self.validation(user)
-    def check(self):
-        return self.name in self.set
-    def validation(self, name):
-        if (not self.check()):
-            print('Id tidak ada silahkan daftar terlebih dahulu')
+        self.count += 1
+        if self.count < 6:
+            user = input("Masukkan Id Anda : ")
+            if self.validation(user):
+                print("Id tersedia\n")
+                Main(Data)
+            else:
+                self.validation(user)
+        elif self.count >= 6:
+            print("Anda Salah Memasukkan Id Sebanyak 3 Kali\nProgram Akan Berhenti ")
+
+    def check(self, id):
+        return id in self.password
+
+    def validation(self, id):
+        if not self.check(id):
+            print("Id tidak ada silahkan daftar terlebih dahulu")
             print()
-            pil = input('Masukkan Id baru anda : ')
-            print('Id berhasil dibuat\n')
-            self.set.add(pil)
-            self.repeat()
-        if (self.check()):
-            print('Id Tersedia')
-            print()
+            register = input("Apakah anda ingin mendaftar ? (y/n) : ")
+            if register == "y":
+                pil = input("Masukkan Id baru anda : ")
+                self.password.add(pil)
+                self.repeat()
+            elif register == "n":
+                print("Silahkan Masukkan Id Lain : ")
+                self.repeat()
+            else:
+                return False
+        elif self.check(id):
             return True
 
-# QUEUE
-# class InformasiKota:
-#     def __init__(self):
-class Map:
-    def __init__(self):
-        self.node = set()
-        self.edge = {}
-    def addNode(self, value):
-        self.node.add(value)
-        self.edge[value] = []
-    def addEdge(self,fromNode, toNode, value):
-        self.edge[fromNode].append((toNode,value))
-        self.edge[toNode].append((fromNode,value))
 
-class MencariLintasanTerdekat:
-    def __init__(self, lokasi):
+class History:
+    def __init__(self):
+        self.historyPerjalanan = []
+
+    def sethistoryPerjalanan(self, date, hour, before, after):
+        item = [date, hour, before, after]
+        return self.historyPerjalanan.append(item)
+
+    def getHistoryPerjalanan(self):
+        print("==============================================================")
+        print("                    History Perjalanan                        ")
+        print("==============================================================")
+        if self.historyPerjalanan == []:
+            print("Belum Ada Data Yang Ter Catat")
+        else:
+            for idx, data in enumerate(self.historyPerjalanan, start=1):
+                print(f" {idx}. {data[0]}\t\t| {data[1]} ({data[2]} ke {data[3]})")
+        print()
+
+
+class Main:
+    def __init__(self, peta):
         self.infinity = float("infinity")
-        self.history = []
-        self.jarak = {}
-        self.kota = {}
-        self.kota_pertama = ""
-        self.kota_tujuan = ""
-        self.lokasi = lokasi
-        self.jalan = True
-        while jalan:
+        self.historyPerjalanan = History
+        self.jarak = {}  # total jarak tempuh
+        self.ruteTerdekat = {}  # kumpulan rute terdekat
+        self.kotaAwal = ""
+        self.kotaTujuan = ""
+        self.peta = peta
+        self.jalan = True  # KONDISI PERULANGAN
+        while self.jalan:
             self.RunCode()
 
     def RunCode(self):
+        print("==============================================================")
+        print("              PROGRAM MENCARI RUTE TERPENDEK")
+        print("==============================================================")
         print("Menu Mencari Lintasan Terpendek Area Sumatera")
         print("1. Cari Lintasan Perjalanan Terpendek")
-        print("2. History Pencarian Lintasan Perjalanan Terpendek")
+        print("2. History Perjalanan Pencarian Lintasan Perjalanan Terpendek")
         print("3. Keluar")
 
-        self.pil = int(input("Masukkan Fitur Yang Diinginkan : "))
-
+        self.pil = int(input("Masukkan Fitur Yang Diinginkan (1 s.d. 3): "))
         if self.pil not in [1, 2, 3]:
-            print("Hanya Boleh Memilih 1, 2, atau 3.")
-            self.jalan = False
+            print("Hanya Boleh Memilih 1, 2, atau 3.\n")
 
         if self.pil == 1:
-            print()
-            print("Lintasan Tersedia :")
-
-            for index, data in enumerate(self.lokasi):
+            print("\nLintasan Tersedia :")  # before
+            for index, data in enumerate(self.peta.kota):
                 print(f"{index+1}. {data}")
-
-            self.kota_pertama = input("Masukkan Kota Anda: ")
-            self.Setup()
-
-            print()
-            print("Lintasan Tersedia :")
-
-            for index, data in enumerate(self.lokasi):
-                if (data==self.kota_pertama):
-                    if index==0:
-                        index+=1
-                    else:
-                        index-=1
-                elif data != self.kota_pertama:
-                    print(f"{index+1}. {data} ")
+            self.kotaAwal = input("Masukkan Kota Anda: ")
+            print("\nLintasan Tersedia :")  # after
+            for data in self.peta.cabang:
+                if data != self.kotaAwal:
+                    print(f"{self.kotaAwal} -> {data} ")
             print()
 
-            self.kota_tujuan = input("Masukkan Lokasi Yang Ingin DiTuju : ")
+            self.kotaTujuan = input("Masukkan peta Yang Ingin DiTuju : ")
+            path = self.peta.FindRute(self.kotaAwal, self.kotaTujuan)
+            print(
+                "\nUntuk Mencapai Lokasi {} Anda Harus Melewati:".format(
+                    self.kotaTujuan
+                )
+            )
+            jarak_tempuh_total = 0
+            for i in range(len(path) - 1):
+                start = path[i]
+                end = path[i + 1]
+                jarak_tempuh = self.peta.cabang[start][end]
+                jarak_tempuh_total += jarak_tempuh
+                print("{} - {} (Jarak: {} Kilometer)".format(start, end, jarak_tempuh))
+            print("Total Jarak: {} Kilometer".format(jarak_tempuh_total), "\n")
 
-            self.GraphSearch()
-
-            if self.jarak[self.kota_tujuan] < self.infinity:
-                # MEMASUKKAN SETIAP KOTA AWAL DAN TUJUAN KE DALAM HISTORY
-                alur_terpendek = self.filterJalurTercepat()
-                print(
-                    f"Menghitung jarak terpendek dari {self.kota_pertama} ke {self.kota_tujuan}"
-                )
-                print()
-                print(
-                    "=============================================================================="
-                )
-                print(
-                    f"Jarak tempuh terpendek untuk dari {self.kota_pertama} ke {self.kota_tujuan} adalah: {self.jarak[self.kota_tujuan]} km "
-                )
-                print(f"Alur terpendek untuk anda adalah {alur_terpendek}")
-                print(
-                    "=============================================================================="
-                )
-                date = dt.datetime.now().date()
-                hour = str(dt.datetime.now().time())
-                before = self.kota_pertama
-                after = self.kota_tujuan
-                self.setHistory(date, hour[:8], before, after)
+            pilihan = input("Apakah anda ingin Mencari Perjalanan Lagi? (y/n): ")
+            if pilihan == "y":
+                os.system("cls")
             else:
-                print("Maaf alur yang anda cari tidak ditemukan")
                 self.jalan = False
+            # PARAMETER HISTORY PERJALANAN
+            date = dt.datetime.now().date()
+            hour = str(dt.datetime.now().time())
+            before = self.kotaAwal
+            after = self.kotaTujuan
+            self.historyPerjalanan().sethistoryPerjalanan(date, hour[:8], before, after)
 
         elif self.pil == 2:
-            self.getHistory()
+            self.historyPerjalanan().getHistoryPerjalanan()
+            back = input("Kembali ke awal? (y/n) : ")
+            if back == "y":
+                os.system("cls")
+            elif back == "n":
+                print("\nTerima Kasih Telah Menggunakan Program")
+                return False
+            else:
+                print("\nInput Tidak Ada\nProgram Akan Dihentikan")
+                print("Terima Kasih Telah Menggunakan Program")
+                return False
         elif self.pil == 3:
+            print("Terima Kasih Sudah Menggunakan Program Kami")
             self.jalan = False
-        else:
-            print()
-            print("Masukkan Perintah Yang Sudah Tertera")
 
-    def Setup(self):
-        for node in self.lokasi:
-            self.jarak[node] = self.infinity
-            self.kota[node] = {}
-        self.jarak[self.kota_pertama] = 0
-
-    def MencariNodeTerdekat(self, not_check):
-        jarakTerpendek = self.infinity
-        nodeTerendah = ""
-        for node in not_check:
-            if self.jarak[node] <= jarakTerpendek:
-                jarakTerpendek = self.jarak[node]
-                nodeTerendah = node
-        return nodeTerendah
-
-    def GraphSearch(self):
-        not_check = list(self.jarak.keys())
-        node = self.MencariNodeTerdekat(not_check)
-        while not_check:
-            dist = self.jarak[node]
-            child_dist = self.lokasi[node]
-            for c in child_dist:
-                if self.jarak[c] > dist + child_dist[c]:
-                    self.jarak[c] = dist + child_dist[c]
-                    self.kota[c] = node
-            not_check.pop(not_check.index(node))
-            node = self.MencariNodeTerdekat(not_check)
-
-    def filterJalurTercepat(self):
-        alur = [self.kota_tujuan]
-        i = 0
-        while self.kota_pertama not in alur:
-            alur.append(self.kota[alur[i]])
-            i += 1
-        return alur[::-1]
-
-    def setHistory(self, date, hour, before, after):
-        item = [date, hour, before, after]
-        return self.history.append(item)
-
-    def getHistory(self):
-        print()
-        print("================================================")
-        print("                    HISTORY")
-        print("================================================")
-        for idx, data in enumerate(self.history, start=1):
-            print(f"| {idx+1}. {data[0]} | {data[1]} ({data[2]} ke {data[3]}) |")
-        print()
 
 # INISIALISASI
-Data = Map()
+Data = Peta()
 # KOTA
-Data.addNode('Medan')
-Data.addNode('Palembang')
-Data.addNode('Padang')
-Data.addNode('Pekanbaru')
-Data.addNode('Jambi')
-Data.addNode('Pekanbaru')
-Data.addNode('Bandar Lampung')
-Data.addNode('Jambi')
-Data.addNode('Bengkulu')
-Data.addNode('Bukit Tinggi')
-Data.addNode('Tanjung Pinang')
-Data.addNode('Dumai')
-# HUBUNGAN ANTAR KOTA
-Data.addEdge('Medan', 'Pekanbaru', 400)
-Data.addEdge('Medan', 'Padang', 600)
-Data.addEdge('Medan', 'Palembang', 500)
-Data.addEdge('Palembang', 'Medan', 500)
-Data.addEdge('Palembang', 'Padang', 400)
-Data.addEdge('Palembang', 'Pekanbaru', 300)
-Data.addEdge('Padang', 'Medan', 600)
-Data.addEdge('Padang', 'Palembang', 400)
-Data.addEdge('Padang', 'Pekanbaru', 200)
-Data.addEdge('Padang', 'Bandar Lampung', 700)
-Data.addEdge('Pekanbaru', 'Padang', 200)
-Data.addEdge('Pekanbaru', 'Medan', 400)
-Data.addEdge('Pekanbaru', 'Palembang', 300)
-Data.addEdge('Bandar Lampung', 'Padang', 700)
-Data.addEdge('Bandar Lampung', 'Jambi', 400)
-Data.addEdge('Jambi', 'Bengkulu', 200)
-Data.addEdge('Jambi', 'Bandar Lampung', 400)
-Data.addEdge('Bengkulu', 'Jambi', 200)
-Data.addEdge('Bengkulu', 'Bukit Tinggi', 300)
-Data.addEdge('Bukit Tinggi', 'Bengkulu', 300)
-Data.addEdge('Bukit Tinggi', 'Tanjung Pinang', 500)
-Data.addEdge('Tanjung Pinang', 'Bukit Tinggi', 500)
-Data.addEdge('Tanjung Pinang', 'Dumai', 400)
-Data.addEdge('Dumai', 'Tanjung Pinang', 400)
+Data.addKota("Medan")
+Data.addKota("Palembang")
+Data.addKota("Padang")
+Data.addKota("Pekanbaru")
+Data.addKota("Bandar Lampung")
+Data.addKota("Jambi")
+Data.addKota("Bengkulu")
+Data.addKota("Bukit Tinggi")
+Data.addKota("Tanjung Pinang")
+Data.addKota("Dumai")
+# HUBUNGAN ANTAR KOTA (GRAPH)
+Data.addCabang("Medan", "Pekanbaru", 400)
+Data.addCabang("Medan", "Padang", 600)
+Data.addCabang("Medan", "Palembang", 500)
+Data.addCabang("Palembang", "Medan", 500)
+Data.addCabang("Palembang", "Padang", 400)
+Data.addCabang("Palembang", "Pekanbaru", 300)
+Data.addCabang("Padang", "Medan", 600)
+Data.addCabang("Padang", "Palembang", 400)
+Data.addCabang("Padang", "Pekanbaru", 200)
+Data.addCabang("Padang", "Bandar Lampung", 700)
+Data.addCabang("Pekanbaru", "Padang", 200)
+Data.addCabang("Pekanbaru", "Medan", 400)
+Data.addCabang("Pekanbaru", "Palembang", 300)
+Data.addCabang("Bandar Lampung", "Padang", 700)
+Data.addCabang("Bandar Lampung", "Jambi", 400)
+Data.addCabang("Jambi", "Bengkulu", 200)
+Data.addCabang("Jambi", "Bandar Lampung", 400)
+Data.addCabang("Bengkulu", "Jambi", 200)
+Data.addCabang("Bengkulu", "Bukit Tinggi", 300)
+Data.addCabang("Bukit Tinggi", "Bengkulu", 300)
+Data.addCabang("Bukit Tinggi", "Tanjung Pinang", 500)
+Data.addCabang("Tanjung Pinang", "Bukit Tinggi", 500)
+Data.addCabang("Tanjung Pinang", "Dumai", 400)
+Data.addCabang("Dumai", "Tanjung Pinang", 400)
+
 
 # MENJALANKAN CODE
-jalan = True
-user = input('Masukkan id anda : ')
-valid = Login(user)
-if (valid):
-    MencariLintasanTerdekat(Data.node)
-else:
-    valid = Login(user)
+user = input("Masukkan id anda : ")
+Login().validation(user)
