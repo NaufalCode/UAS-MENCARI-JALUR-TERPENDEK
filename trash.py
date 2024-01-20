@@ -158,7 +158,7 @@ class Main:
             print()
 
             self.kotaTujuan = input("Masukkan peta Yang Ingin DiTuju : ")
-            path = self.peta.FindRute(self.kotaAwal, self.kotaTujuan)
+            path,jarak = self.peta.FindRute(self.kotaAwal, self.kotaTujuan)
             print(
                 "\nUntuk Mencapai Lokasi {} Anda Harus Melewati:".format(
                     self.kotaTujuan
