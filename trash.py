@@ -7,20 +7,20 @@ os.system("cls")
 # CLASS UNTUK MENYIMPAN INFORMASI KOTA DAN JUGA JARAK ANTAR KOTA
 class Peta:
     def __init__(self):
-        self.kota = [] # MENYIMPAN NAMA KOTA
-        self.cabang = {} # MENYIMPAN JARAK ANTAR KOTA
+        self.kota = []  # MENYIMPAN NAMA KOTA
+        self.cabang = {}  # MENYIMPAN JARAK ANTAR KOTA
 
-# FUNGSI UNTUK MENAMBAHKAN KOTA (HANYA NAMA KOTA SAJA)
+    # FUNGSI UNTUK MENAMBAHKAN KOTA (HANYA NAMA KOTA SAJA)
     def addKota(self, value):
         self.kota.append(value)
         self.cabang[value] = {}
 
-# FUNGSI UNTUK MENYAMBUNGKAN ANTAR KOTA
+    # FUNGSI UNTUK MENYAMBUNGKAN ANTAR KOTA
     def addCabang(self, lokasiAwal, tujuan, jarak):
         self.cabang[lokasiAwal][tujuan] = jarak
         self.cabang[tujuan][tujuan] = jarak
 
-# FUNGSI UNTUK MENCARI RUTE TERDEKAT DARI LOKASI AWAL KE TUJUAN
+    # FUNGSI UNTUK MENCARI RUTE TERDEKAT DARI LOKASI AWAL KE TUJUAN
     def FindRute(self, kotaAwal, kotaTujuan):
         jarak = {vertex: float("inf") for vertex in self.cabang}
         jarak[kotaAwal] = 0
@@ -40,28 +40,28 @@ class Peta:
                 if jarak[ruteSekarang] + distance < jarak[tetangga]:
                     jarak[tetangga] = jarak[ruteSekarang] + distance
 
-        path = [kotaTujuan]
+        rute = [kotaTujuan]
         ruteSekarang = kotaTujuan
-        jarak_tempuh = 0
+        jarakTempuh = 0
 
         while ruteSekarang != kotaAwal:
             for tetangga, distance in self.cabang[ruteSekarang].items():
                 if jarak[ruteSekarang] - distance == jarak[tetangga]:
-                    path.append(tetangga)
-                    jarak_tempuh += distance
+                    rute.append(tetangga)
+                    jarakTempuh += distance
                     ruteSekarang = tetangga
                     break
-        path.reverse()
-        return path, jarak_tempuh
+        rute.reverse()
+        return rute, jarakTempuh
 
 
 class Login:
-# HANYA BERISI LOGIN FLOW
+    # HANYA BERISI LOGIN FLOW
     def __init__(self):
         self.password = set()
         self.count = 0
 
-# FUNGSI REKURSIF YANG TERUS BERULANGAN SAMPAI 3 KALI APABILA ID SALAH
+    # FUNGSI REKURSIF YANG TERUS BERULANGAN SAMPAI 3 KALI APABILA ID SALAH
     def repeat(self):
         self.count += 1
         if self.count < 6:
@@ -83,8 +83,7 @@ class Login:
             print()
             register = input("Apakah anda ingin mendaftar ? (y/n) : ")
             if register == "y":
-                pil = input("Masukkan Id baru anda : ")
-                self.password.add(pil)
+                self.register()
                 self.repeat()
             elif register == "n":
                 print("Silahkan Masukkan Id Lain : ")
@@ -94,20 +93,30 @@ class Login:
         elif self.check(id):
             return True
 
+    def register(self):
+        id = input("\nMasukkan Id Baru Anda : ")
+        if id in self.password:
+            print("Id sudah terdaftar")
+            id = input("\nMasukkan Id Baru Anda : ")
+            self.password.add(id)
+        else:
+            self.password.add(id)
+        self.repeat()
+
 
 # CLASS UNTUK HISTORY PERJALANAN
 class History:
     def __init__(self):
         self.historyPerjalanan = []
 
-# FUNGSI UNTUK MENAMBAHKAN HISTORY SETIAP MELAKUKAN PERJALANAN
-    def sethistoryPerjalanan(self, date, hour, before, after):
+    # FUNGSI UNTUK MENAMBAHKAN HISTORY SETIAP MELAKUKAN PERJALANAN
+    def setHistoryPerjalanan(self, date, hour, before, after):
         item = [date, hour, before, after]
         return self.historyPerjalanan.append(item)
 
-# FUNGSI UNTUK MENDAPATKAN HISTORY PERJALANAN YANG SUDAH DILAKUKAN
+    # FUNGSI UNTUK MENDAPATKAN HISTORY PERJALANAN YANG SUDAH DILAKUKAN
     def getHistoryPerjalanan(self):
-        print("==============================================================")
+        print("\n==============================================================")
         print("                    History Perjalanan                        ")
         print("==============================================================")
         if self.historyPerjalanan == []:
@@ -122,18 +131,18 @@ class History:
 class Main:
     def __init__(self, peta):
         self.infinity = float("infinity")
-        self.historyPerjalanan = History
+        self.historyPerjalanan = History()
         self.jarak = {}  # total jarak tempuh
         self.ruteTerdekat = {}  # kumpulan rute terdekat
         self.kotaAwal = ""
         self.kotaTujuan = ""
-        self.peta = peta 
+        self.peta = peta
         self.jalan = True  # KONDISI PERULANGAN
         while self.jalan:
-            self.RunCode()
+            self.RunCodeHeader()
 
-# DISPLAY CODE
-    def RunCode(self):
+    # DISPLAY CODE
+    def RunCodeHeader(self):
         print("==============================================================")
         print("              PROGRAM MENCARI RUTE TERPENDEK")
         print("==============================================================")
@@ -141,65 +150,74 @@ class Main:
         print("1. Cari Lintasan Perjalanan Terpendek")
         print("2. History Perjalanan Pencarian Lintasan Perjalanan Terpendek")
         print("3. Keluar")
-
         self.pil = int(input("Masukkan Fitur Yang Diinginkan (1 s.d. 3): "))
-        if self.pil not in [1, 2, 3]:
-            print("Hanya Boleh Memilih 1, 2, atau 3.\n")
+        self.Menu()
 
-        if self.pil == 1:
-            print("\nLintasan Tersedia :")  # before
-            for index, data in enumerate(self.peta.kota):
-                print(f"{index+1}. {data}")
-            self.kotaAwal = input("Masukkan Kota Anda: ")
-            print("\nLintasan Tersedia :")  # after
-            for data in self.peta.cabang:
-                if data != self.kotaAwal:
-                    print(f"{self.kotaAwal} -> {data} ")
-            print()
+    def Menu(self):
+        try:
+            if self.pil not in [1, 2, 3]:
+                print("Hanya Boleh Memilih 1, 2, atau 3.\n")
 
-            self.kotaTujuan = input("Masukkan peta Yang Ingin DiTuju : ")
-            path,jarak = self.peta.FindRute(self.kotaAwal, self.kotaTujuan)
-            print(
-                "\nUntuk Mencapai Lokasi {} Anda Harus Melewati:".format(
-                    self.kotaTujuan
+            if self.pil == 1:
+                print("\nLintasan Yang Tersedia :")  # before
+                for index, data in enumerate(self.peta.kota):
+                    print(f"{index+1}. {data}")
+                self.kotaAwal = input("Masukkan Lokasi Awal Anda : ")
+                print("\nLintasan Yang Tersedia :")  # after
+                for data in self.peta.cabang:
+                    if data != self.kotaAwal:
+                        print(f"{self.kotaAwal} -> {data} ")
+                print()
+
+                self.kotaTujuan = input("Masukkan Kota Tujuan Anda : ")
+                rute, jarak = self.peta.FindRute(self.kotaAwal, self.kotaTujuan)
+                print(
+                    "\nUntuk Mencapai Lokasi {} Anda Harus Melewati:".format(
+                        self.kotaTujuan
+                    )
                 )
-            )
-            jarak_tempuh_total = 0
-            for i in range(len(path) - 1):
-                start = path[i]
-                end = path[i + 1]
-                jarak_tempuh = self.peta.cabang[start][end]
-                jarak_tempuh_total += jarak_tempuh
-                print("{} - {} (Jarak: {} Kilometer)".format(start, end, jarak_tempuh))
-            print("Total Jarak: {} Kilometer".format(jarak_tempuh_total), "\n")
+                jarakTempuhTotal = 0
+                for i in range(len(rute) - 1):
+                    start = rute[i]
+                    end = rute[i + 1]
+                    jarakTempuh = self.peta.cabang[start][end]
+                    jarakTempuhTotal += jarakTempuh
+                    print(
+                        "{} - {} (Jarak: {} Kilometer)".format(start, end, jarakTempuh)
+                    )
+                print("Total Jarak: {} Kilometer".format(jarakTempuhTotal), "\n")
 
-            pilihan = input("Apakah anda ingin Mencari Perjalanan Lagi? (y/n): ")
-            if pilihan == "y":
-                os.system("cls")
-            else:
+                pilihan = input("Apakah Anda Ingin Mencari Perjalanan Lagi? (y/n): ")
+                if pilihan == "y":
+                    os.system("cls")
+                    self.Menu()
+                else:
+                    os.system("cls")
+                # PARAMETER HISTORY PERJALANAN
+                date = dt.datetime.now().date()
+                hour = str(dt.datetime.now().time())
+                before = self.kotaAwal
+                after = self.kotaTujuan
+                self.historyPerjalanan.setHistoryPerjalanan(
+                    date, hour[:8], before, after
+                )
+
+            elif self.pil == 2:
+                self.historyPerjalanan.getHistoryPerjalanan()
+                back = ""
+                while back != "y":
+                    back = input("Kembali ke awal? (y/n) : ")
+                    if back == "y":
+                        os.system("cls")
+                    elif back == "n":
+                        print("Waiting...\n")
+                    else:
+                        print("Input Tidak Ada\nSilahkan Masukkan (y / n)\n")
+            elif self.pil == 3:
+                print("Terima Kasih Sudah Menggunakan Program Kami")
                 self.jalan = False
-            # PARAMETER HISTORY PERJALANAN
-            date = dt.datetime.now().date()
-            hour = str(dt.datetime.now().time())
-            before = self.kotaAwal
-            after = self.kotaTujuan
-            self.historyPerjalanan().sethistoryPerjalanan(date, hour[:8], before, after)
-
-        elif self.pil == 2:
-            self.historyPerjalanan().getHistoryPerjalanan()
-            back = input("Kembali ke awal? (y/n) : ")
-            if back == "y":
-                os.system("cls")
-            elif back == "n":
-                print("\nTerima Kasih Telah Menggunakan Program")
-                return False
-            else:
-                print("\nInput Tidak Ada\nProgram Akan Dihentikan")
-                print("Terima Kasih Telah Menggunakan Program")
-                return False
-        elif self.pil == 3:
-            print("Terima Kasih Sudah Menggunakan Program Kami")
-            self.jalan = False
+        except TypeError:
+            print("\nInput Hanya Boleh Berupa Angka : ")
 
 
 # INISIALISASI
@@ -243,5 +261,23 @@ Data.addCabang("Dumai", "Tanjung Pinang", 400)
 
 
 # MENJALANKAN CODE
-user = input("Masukkan id anda : ")
-Login().validation(user)
+print("==============================================================")
+print("                        LOGIN PAGE                            ")
+print("==============================================================")
+print("1. Login")
+print("2. Register")
+form = int(input("Masukkan Pilihan Anda (1 - 2) : "))
+run = True
+while run:
+    try:
+        if form == 1:
+            user = input("Masukkan Id Anda : ")
+            Login().validation(user)
+        elif form == 2:
+            Login().register()
+        else:
+            print("Hanya Boleh Memasukkan Angka 1 Atau 2")
+        if Main(Data).jalan == False:
+            break
+    except TypeError:
+        print('Inputan Hanya Boleh Berupa Angka 1 Atau 2')
