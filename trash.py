@@ -4,20 +4,23 @@ import datetime as dt
 os.system("cls")
 
 
-# DICTIONARY dan QUEUE
+# CLASS UNTUK MENYIMPAN INFORMASI KOTA DAN JUGA JARAK ANTAR KOTA
 class Peta:
     def __init__(self):
-        self.kota = []
-        self.cabang = {}
+        self.kota = [] # MENYIMPAN NAMA KOTA
+        self.cabang = {} # MENYIMPAN JARAK ANTAR KOTA
 
+# FUNGSI UNTUK MENAMBAHKAN KOTA (HANYA NAMA KOTA SAJA)
     def addKota(self, value):
         self.kota.append(value)
         self.cabang[value] = {}
 
+# FUNGSI UNTUK MENYAMBUNGKAN ANTAR KOTA
     def addCabang(self, lokasiAwal, tujuan, jarak):
         self.cabang[lokasiAwal][tujuan] = jarak
         self.cabang[tujuan][tujuan] = jarak
 
+# FUNGSI UNTUK MENCARI RUTE TERDEKAT DARI LOKASI AWAL KE TUJUAN
     def FindRute(self, kotaAwal, kotaTujuan):
         jarak = {vertex: float("inf") for vertex in self.cabang}
         jarak[kotaAwal] = 0
@@ -52,12 +55,13 @@ class Peta:
         return path, jarak_tempuh
 
 
-# SET
 class Login:
+# HANYA BERISI LOGIN FLOW
     def __init__(self):
         self.password = set()
         self.count = 0
 
+# FUNGSI REKURSIF YANG TERUS BERULANGAN SAMPAI 3 KALI APABILA ID SALAH
     def repeat(self):
         self.count += 1
         if self.count < 6:
@@ -91,14 +95,17 @@ class Login:
             return True
 
 
+# CLASS UNTUK HISTORY PERJALANAN
 class History:
     def __init__(self):
         self.historyPerjalanan = []
 
+# FUNGSI UNTUK MENAMBAHKAN HISTORY SETIAP MELAKUKAN PERJALANAN
     def sethistoryPerjalanan(self, date, hour, before, after):
         item = [date, hour, before, after]
         return self.historyPerjalanan.append(item)
 
+# FUNGSI UNTUK MENDAPATKAN HISTORY PERJALANAN YANG SUDAH DILAKUKAN
     def getHistoryPerjalanan(self):
         print("==============================================================")
         print("                    History Perjalanan                        ")
@@ -111,6 +118,7 @@ class History:
         print()
 
 
+# class ini berfungsi untuk mengeluarkan output dan juga flow program
 class Main:
     def __init__(self, peta):
         self.infinity = float("infinity")
@@ -119,11 +127,12 @@ class Main:
         self.ruteTerdekat = {}  # kumpulan rute terdekat
         self.kotaAwal = ""
         self.kotaTujuan = ""
-        self.peta = peta
+        self.peta = peta 
         self.jalan = True  # KONDISI PERULANGAN
         while self.jalan:
             self.RunCode()
 
+# DISPLAY CODE
     def RunCode(self):
         print("==============================================================")
         print("              PROGRAM MENCARI RUTE TERPENDEK")
